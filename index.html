@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JP Fashion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-[Poppins]">
+
+<!-- Login/Register Modal -->
+<div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-8 rounded-lg w-96">
+        <h2 id="authTitle" class="text-2xl font-bold mb-4">Login</h2>
+        
+        <form id="authForm" class="space-y-4">
+            <div class="login-fields">
+                <input type="email" id="email" placeholder="Email" class="w-full p-2 border rounded">
+                <input type="password" id="password" placeholder="Password" class="w-full p-2 border rounded mt-2">
+            </div>
+            
+            <div class="register-fields hidden">
+                <input type="text" id="name" placeholder="Full Name" class="w-full p-2 border rounded">
+                <input type="tel" id="phone" placeholder="Phone Number" class="w-full p-2 border rounded mt-2">
+                <input type="text" id="address" placeholder="Address" class="w-full p-2 border rounded mt-2">
+            </div>
+
+            <div class="flex justify-between text-sm">
+                <button type="button" id="toggleAuth" class="text-blue-600">Register New User</button>
+                <button type="button" id="forgotPassword" class="text-blue-600">Forgot Password?</button>
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Login</button>
+        </form>
+    </div>
+</div>
+
+<!-- OTP Verification Modal -->
+<div id="otpModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white p-8 rounded-lg w-96">
+        <h2 class="text-2xl font-bold mb-4">Verify OTP</h2>
+        <input type="text" id="otp" placeholder="Enter OTP" class="w-full p-2 border rounded">
+        <button id="verifyOtp" class="w-full bg-blue-600 text-white p-2 rounded mt-4 hover:bg-blue-700">Verify</button>
+    </div>
+</div>
+
+<!-- Main Application (Initially Hidden) -->
+<div id="mainApp" class="hidden">
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <img id="logo" src="https://via.placeholder.com/50" alt="JP Fashion" class="h-10">
+                <h1 class="text-xl font-bold ml-2">JP Fashion</h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div id="notificationBell" class="relative cursor-pointer hidden">
+                    <i class="bi bi-bell text-xl"></i>
+                    <span id="notificationCount" class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span>
+                </div>
+                <div id="cartIcon" class="relative cursor-pointer hidden">
+                    <i class="bi bi-cart text-xl"></i>
+                    <span id="cartCount" class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span>
+                </div>
+                <div id="userProfile" class="cursor-pointer">
+                    <i class="bi bi-person-circle text-xl"></i>
+                </div>
+                <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Controls (Initially Hidden) -->
+    <div id="adminControls" class="container mx-auto px-4 py-6 hidden">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Add New Product</h2>
+            <form id="productForm" class="space-y-4">
+                <input type="text" id="productName" placeholder="Product Name" class="w-full p-2 border rounded">
+                <input type="number" id="productPrice" placeholder="Price" class="w-full p-2 border rounded">
+                <input type="number" id="productQuantity" placeholder="Quantity" class="w-full p-2 border rounded">
+                <input type="file" id="productImage" class="w-full p-2 border rounded">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Product</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div id="productsGrid" class="container mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Products will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg w-3/4 max-h-[80vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4">Your Cart</h2>
+            <div id="cartItems" class="space-y-4">
+                <!-- Cart items will be dynamically added here -->
+            </div>
+            <div class="mt-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold">Total: $<span id="cartTotal">0</span></h3>
+                <button id="checkoutBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg w-96">
+            <h2 class="text-2xl font-bold mb-4">Profile Details</h2>
+            <div id="profileDetails" class="space-y-2">
+                <!-- Profile details will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
+
+<script>
+// Auth state
+let isLoggedIn = false;
+let isAdmin = false;
+let currentUser = null;
+
+// Sample data structures
+let products = [];
+let cart = [];
+let orders = [];
+let notifications = [];
+
+// Admin credentials
+const ADMIN_EMAIL = 'pravenkumar6465@gmail.com';
+const ADMIN_PASSWORD = '1234';
+
+// DOM Elements
+const authModal = document.getElementById('authModal');
+const authForm = document.getElementById('authForm');
+const toggleAuthBtn = document.getElementById('toggleAuth');
+const mainApp = document.getElementById('mainApp');
+const adminControls = document.getElementById('adminControls');
+const productForm = document.getElementById('productForm');
+const productsGrid = document.getElementById('productsGrid');
+const cartIcon = document.getElementById('cartIcon');
+const notificationBell = document.getElementById('notificationBell');
+const cartModal = document.getElementById('cartModal');
+const profileModal = document.getElementById('profileModal');
+
+// Toggle between login and register
+toggleAuthBtn.addEventListener('click', () => {
+    const registerFields = document.querySelector('.register-fields');
+    const loginFields = document.querySelector('.login-fields');
+    const authTitle = document.getElementById('authTitle');
+    
+    if (registerFields.classList.contains('hidden')) {
+        registerFields.classList.remove('hidden');
+        authTitle.textContent = 'Register';
+        toggleAuthBtn.textContent = 'Back to Login';
+    } else {
+        registerFields.classList.add('hidden');
+        authTitle.textContent = 'Login';
+        toggleAuthBtn.textContent = 'Register New User';
+    }
+});
+
+// Handle auth form submission
+authForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        login({ email, isAdmin: true });
+    } else {
+        login({ email, isAdmin: false });
+    }
+});
+
+// Login function
+function login(user) {
+    isLoggedIn = true;
+    isAdmin = user.isAdmin;
+    currentUser = user;
+    
+    authModal.classList.add('hidden');
+    mainApp.classList.remove('hidden');
+    
+    if (isAdmin) {
+        adminControls.classList.remove('hidden');
+        notificationBell.classList.remove('hidden');
+        cartIcon.classList.add('hidden');
+    } else {
+        adminControls.classList.add('hidden');
+        notificationBell.classList.add('hidden');
+        cartIcon.classList.remove('hidden');
+    }
+}
+
+// Handle product form submission (Admin)
+productForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('productName').value;
+    const price = document.getElementById('productPrice').value;
+    const quantity = document.getElementById('productQuantity').value;
+    const image = document.getElementById('productImage').files[0];
+
+    // Create product object
+    const product = {
+        id: Date.now(),
+        name,
+        price: parseFloat(price),
+        quantity: parseInt(quantity),
+        image: URL.createObjectURL(image)
+    };
+
+    products.push(product);
+    renderProducts();
+});
+
+// Render products grid
+function renderProducts() {
+    productsGrid.innerHTML = '';
+    products.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'bg-white rounded-lg shadow-md p-4';
+        productCard.innerHTML = `
+            <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover rounded">
+            <h3 class="text-lg font-bold mt-2">${product.name}</h3>
+            <p class="text-gray-600">$${product.price}</p>
+            <p class="text-sm ${product.quantity > 0 ? 'text-green-600' : 'text-red-600'}">
+                ${product.quantity > 0 ? `In Stock (${product.quantity})` : 'Out of Stock'}
+            </p>
+            ${!isAdmin && product.quantity > 0 ? `
+                <button onclick="addToCart(${product.id})" class="w-full bg-blue-600 text-white p-2 rounded mt-2 hover:bg-blue-700">
+                    Add to Cart
+                </button>
+            ` : ''}
+            ${isAdmin ? `
+                <button onclick="deleteProduct(${product.id})" class="w-full bg-red-600 text-white p-2 rounded mt-2 hover:bg-red-700">
+                    Delete
+                </button>
+            ` : ''}
+        `;
+        productsGrid.appendChild(productCard);
+    });
+}
+
+// Cart functions
+function addToCart(productId) {
+    const product = products.find(p => p.id === productId);
+    if (product && product.quantity > 0) {
+        cart.push({ ...product, quantity: 1 });
+        product.quantity--;
+        updateCartCount();
+        renderProducts();
+    }
+}
+
+function updateCartCount() {
+    document.getElementById('cartCount').textContent = cart.length;
+}
+
+// Cart modal toggle
+cartIcon.addEventListener('click', () => {
+    renderCart();
+    cartModal.style.display = 'flex';
+});
+
+// Render cart items
+function renderCart() {
+    const cartItems = document.getElementById('cartItems');
+    cartItems.innerHTML = '';
+    let total = 0;
+
+    cart.forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.className = 'flex justify-between items-center border-b pb-2';
+        itemElement.innerHTML = `
+            <div>
+                <h4 class="font-bold">${item.name}</h4>
+                <p>$${item.price} x ${item.quantity}</p>
+            </div>
+            <button onclick="removeFromCart(${item.id})" class="text-red-600">Remove</button>
+        `;
+        cartItems.appendChild(itemElement);
+        total += item.price * item.quantity;
+    });
+
+    document.getElementById('cartTotal').textContent = total.toFixed(2);
+}
+
+// Handle checkout
+document.getElementById('checkoutBtn').addEventListener('click', () => {
+    if (cart.length > 0) {
+        // Create order
+        const order = {
+            id: Date.now(),
+            items: [...cart],
+            user: currentUser,
+            total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+        };
+        
+        orders.push(order);
+        // Add notification for admin
+        notifications.push({
+            id: Date.now(),
+            text: `New order #${order.id} from ${currentUser.email}`,
+            read: false
+        });
+        
+        updateNotificationCount();
+        cart = [];
+        updateCartCount();
+        cartModal.style.display = 'none';
+        alert('Order placed successfully!');
+    }
+});
+
+// Update notification count
+function updateNotificationCount() {
+    const unreadCount = notifications.filter(n => !n.read).length;
+    document.getElementById('notificationCount').textContent = unreadCount;
+}
+
+// Notification bell click handler
+notificationBell.addEventListener('click', () => {
+    const unreadNotifications = notifications.filter(n => !n.read);
+    if (unreadNotifications.length > 0) {
+        alert(unreadNotifications.map(n => n.text).join('\n'));
+        notifications.forEach(n => n.read = true);
+        updateNotificationCount();
+    }
+});
+
+// Logout handler
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    isLoggedIn = false;
+    isAdmin = false;
+    currentUser = null;
+    cart = [];
+    mainApp.classList.add('hidden');
+    authModal.classList.remove('hidden');
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+});
+
+// Initialize the app
+renderProducts();
+</script>
+
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
